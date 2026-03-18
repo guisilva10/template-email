@@ -2,25 +2,36 @@ import { Resend } from "resend";
 import { render } from "@react-email/components";
 import { NextResponse } from "next/server";
 import { WelcomeEmail, defaultWelcomeProps } from "@/emails/welcome";
-import type { WelcomeEmailProps } from "@/emails/welcome";
+import { ResetPasswordEmail, defaultResetPasswordProps } from "@/emails/reset-password";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: Request) {
   try {
     const apiKey = process.env.RESEND_API_KEY;
     console.log("[send-test] RESEND_API_KEY loaded:", apiKey ? `${apiKey.slice(0, 8)}...` : "UNDEFINED");
 
-    const resend = new Resend(apiKey);
     const body = await request.json().catch(() => ({}));
+    const toEmail: string = body.toEmail;
+    const template: string = body.template ?? "welcome";
 
-    const props: WelcomeEmailProps = { ...defaultWelcomeProps, ...body };
-    const toEmail: string = body.toEmail ?? props.customerEmail;
+    let html: string;
+    let subject: string;
 
-    const html = await render(WelcomeEmail(props));
+    if (template === "reset") {
+      const props = { ...defaultResetPasswordProps, ...body };
+      html = await render(ResetPasswordEmail(props));
+      subject = "Redefinição de senha — High Training App";
+    } else {
+      const props = { ...defaultWelcomeProps, ...body };
+      html = await render(WelcomeEmail(props));
+      subject = `Bem-vindo ao High Training App! Recibo #${defaultWelcomeProps.invoiceNumber}`;
+    }
 
     const { data, error } = await resend.emails.send({
       from: process.env.FROM_EMAIL ?? "onboarding@resend.dev",
       to: toEmail,
-      subject: `Bem-vindo ao High Training App! Recibo #${props.invoiceNumber}`,
+      subject,
       html,
     });
 

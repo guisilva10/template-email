@@ -2,86 +2,65 @@
 
 import { useState } from "react";
 
-export default function PreviewClient({ html }: { html: string }) {
-  const [sending, setSending] = useState(false);
-  const [toEmail, setToEmail] = useState("");
-  const [result, setResult] = useState<{
-    success?: boolean;
-    error?: unknown;
-    emailId?: string;
-  } | null>(null);
+type Tab = "welcome" | "reset";
 
-  const handleSendTest = async () => {
-    if (!toEmail) return alert("Digite um email para receber o teste.");
-    setSending(true);
-    setResult(null);
-    try {
-      const res = await fetch("/api/send-test", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ toEmail }),
-      });
-      const data = await res.json();
-      setResult(data);
-    } catch {
-      setResult({ success: false, error: "Falha na requisição" });
-    } finally {
-      setSending(false);
-    }
-  };
+interface Props {
+  welcomeHtml: string;
+  resetHtml: string;
+}
+
+export default function PreviewClient({ welcomeHtml, resetHtml }: Props) {
+  const [activeTab, setActiveTab] = useState<Tab>("welcome");
+
+  const currentHtml = activeTab === "welcome" ? welcomeHtml : resetHtml;
 
   return (
-    <div className="min-h-screen bg-zinc-100">
-      {/* Top bar */}
-      <div className="bg-zinc-900 text-white px-6 py-4 flex items-center gap-4 flex-wrap">
-        <span className="font-semibold text-sm tracking-tight">
-          Preview — Email de Compra Confirmada
+    <div className="min-h-screen bg-[#0a0a0a]">
+
+      {/* ── Top bar ── */}
+      <div className="bg-[#0f0f0f] border-b border-[#1e1e1e] px-6 py-4 flex items-center justify-between">
+        <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.2em]">
+          High Training App — Templates de Email
         </span>
 
-        <div className="flex items-center gap-2 ml-auto flex-wrap">
-          <input
-            type="email"
-            placeholder="seu@email.com"
-            value={toEmail}
-            onChange={(e) => setToEmail(e.target.value)}
-            className="bg-zinc-700 text-white text-sm px-3 py-2 rounded-lg border border-zinc-600 focus:outline-none focus:border-zinc-400 w-56 placeholder:text-zinc-400"
-          />
+        {/* Tabs */}
+        <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-lg p-1">
           <button
-            onClick={handleSendTest}
-            disabled={sending}
-            className="bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors cursor-pointer"
-          >
-            {sending ? "Enviando..." : "✉ Enviar teste"}
-          </button>
-        </div>
-
-        {result && (
-          <span
-            className={`text-sm font-medium w-full sm:w-auto ${
-              result.success ? "text-green-400" : "text-red-400"
+            onClick={() => setActiveTab("welcome")}
+            className={`px-5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all cursor-pointer ${
+              activeTab === "welcome"
+                ? "bg-white text-[#0a0a0a]"
+                : "text-zinc-500 hover:text-zinc-300"
             }`}
           >
-            {result.success
-              ? `✓ Email enviado! ID: ${result.emailId}`
-              : `✗ Erro: ${JSON.stringify(result.error)}`}
-          </span>
-        )}
+            Boas-vindas
+          </button>
+          <button
+            onClick={() => setActiveTab("reset")}
+            className={`px-5 py-1.5 rounded-md text-xs font-semibold tracking-wide transition-all cursor-pointer ${
+              activeTab === "reset"
+                ? "bg-white text-[#0a0a0a]"
+                : "text-zinc-500 hover:text-zinc-300"
+            }`}
+          >
+            Esqueci a Senha
+          </button>
+        </div>
       </div>
 
-      {/* Preview frame */}
-      <div className="p-8 flex justify-center">
+      {/* ── Preview frame ── */}
+      <div className="px-8 pt-8 pb-12 flex justify-center">
         <div className="w-full max-w-2xl">
-          <div className="text-xs text-zinc-400 mb-3 font-medium uppercase tracking-widest text-center">
-            Visualização do email
-          </div>
           <iframe
-            srcDoc={html}
-            className="w-full rounded-xl shadow-2xl border border-zinc-200 bg-white"
+            key={activeTab}
+            srcDoc={currentHtml}
+            className="w-full rounded-xl border border-[#1e1e1e]"
             style={{ height: "960px" }}
             title="Email Preview"
           />
         </div>
       </div>
+
     </div>
   );
 }
