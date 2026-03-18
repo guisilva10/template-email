@@ -104,8 +104,8 @@ export function ResetPasswordEmail({
             <Img
               src={logoUrl}
               alt={companyName}
-              width={96}
-              height={96}
+              width={130}
+              height={130}
               style={s.heroLogo}
             />
             <Text style={s.logoWordmark}>HIGH TRAINING APP</Text>
