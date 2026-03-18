@@ -398,7 +398,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   heroLogo: {
     display: "block",
-    margin: "0 auto 12px",
+    margin: "24px auto 12px",
     filter: "drop-shadow(0 0 16px rgba(120,100,255,0.5))",
   },
   logoWordmark: {

@@ -249,7 +249,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   heroLogo: {
     display: "block",
-    margin: "0 auto 12px",
+    margin: "24px auto 12px",
   },
   logoWordmark: {
     color: "rgba(255,255,255,0.7)",
